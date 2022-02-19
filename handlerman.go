@@ -7,6 +7,7 @@ import (
 
 	"github.com/ksaucedo002/answer"
 	"github.com/ksaucedo002/answer/errores"
+	"github.com/ksaucedo002/kcheck"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -21,8 +22,9 @@ const (
 )
 
 type HandlerMan struct {
-	fieldKey     fieldName
-	allowActions map[string]struct{}
+	fieldKey       fieldName
+	allowActions   map[string]struct{}
+	translateFiles map[string]string
 	//ignoreFiels  map[string]struct{}
 	group   *echo.Group
 	storage *storage
@@ -35,6 +37,7 @@ func NewHandlerMan(g *echo.Group, conn *gorm.DB) *HandlerMan {
 			ModelFieldName: "ID",
 			IsNumber:       true,
 		},
+
 		allowActions: map[string]struct{}{
 			ACTION_CREATE: {}, ACTION_DELETE: {}, ACTION_UPDATE: {},
 			ACTION_FIND_ALL: {}, ACTION_FIND_BY: {}, ACTION_PATCH: {}},
@@ -56,6 +59,7 @@ func (h *HandlerMan) Start(i interface{}, options ...options) error {
 		return fmt.Errorf("error, se esperabas una estructura")
 	}
 	h.storage.rType = rType
+	h.translateFiles = getMapJsonFieldNameWithModelFieldName(i)
 	for _, op := range options {
 		op.apply(h)
 	}
@@ -98,6 +102,7 @@ func (h *HandlerMan) findByIdentifier(c echo.Context) error {
 			return answer.ErrorResponse(c, errores.NewNotFoundf(nil, errores.ErrRecordNotFaund))
 		}
 	}
+
 	data, serr := h.storage.findByIdentifier(h.fieldKey.TableFieldName, key)
 	if serr != nil {
 		return answer.ErrorResponse(c, serr)
@@ -108,6 +113,9 @@ func (h *HandlerMan) create(c echo.Context) error {
 	newObjet := reflect.New(h.storage.rType).Interface()
 	if err := jsonBind(c, newObjet); err != nil {
 		return answer.JSONErrorResponse(c)
+	}
+	if err := kcheck.Valid(newObjet); err != nil {
+		return answer.ErrorResponse(c, errores.NewBadRequestf(nil, err.Error()))
 	}
 	if err := h.storage.create(newObjet); err != nil {
 		return answer.ErrorResponse(c, err)
@@ -124,9 +132,12 @@ func (h *HandlerMan) update(c echo.Context) error {
 		err := fmt.Errorf("%s no se encontro en la estrucutra %v", h.fieldKey.ModelFieldName, h.storage.rType)
 		return answer.ErrorResponse(c, errores.NewInternalf(err, errores.ErrDatabaseInternal))
 	}
-	pkvalue, err := h.getIndentifierValues(field)
+	pkvalue, err := getIndentifierValues(field)
 	if err != nil {
 		return answer.ErrorResponse(c, err)
+	}
+	if err := kcheck.Valid(newObjet); err != nil {
+		return answer.ErrorResponse(c, errores.NewBadRequestf(nil, err.Error()))
 	}
 	if err := h.storage.update(h.fieldKey.TableFieldName, pkvalue, newObjet); err != nil {
 		return answer.ErrorResponse(c, err)

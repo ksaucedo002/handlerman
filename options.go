@@ -26,7 +26,7 @@ type allowActions struct {
 }
 
 func WithAllowActions(actions ...string) allowActions {
-	aa := allowActions{}
+	aa := allowActions{actions: make(map[string]struct{})}
 	for _, action := range actions {
 		aa.actions[action] = struct{}{}
 	}

@@ -61,6 +61,8 @@ github.com/ksaucedo002/answer v0.0.11 h1:LEGZHVZDr9fS/geP4P8++L2kpAPQ8vJCb81auRC
 github.com/ksaucedo002/answer v0.0.11/go.mod h1:U617AzRrI7hUkR/JWRFR8929U5voJ1iQI6TIn84TV8o=
 github.com/ksaucedo002/ctxman v0.0.7 h1:7CfKdr52k9cz9n+9IKSx6kLxajKIi3M89jaz4kCoz9Q=
 github.com/ksaucedo002/ctxman v0.0.7/go.mod h1:ZYGr4g7JrZ8dICB6tDZla0EEF2FrgtvgUblJlG6SefI=
+github.com/ksaucedo002/kcheck v0.2.0 h1:ha/83wmiCSVmnasJoqa9p7ZddA0YptM3a0fdwPKqAY8=
+github.com/ksaucedo002/kcheck v0.2.0/go.mod h1:MG4ej2jbFl+2Q+hFZ+wRUlcj9zJbrcaPd3wD296uB70=
 github.com/labstack/echo/v4 v4.6.3 h1:VhPuIZYxsbPmo4m9KAkMU/el2442eB7EBFFhNTTT9ac=
 github.com/labstack/echo/v4 v4.6.3/go.mod h1:Hk5OiHj0kDqmFq7aHe7eDqI7CUhuCrfpupQtLGGLm7A=
 github.com/labstack/gommon v0.3.1 h1:OomWaJXm7xR6L1HmEtGyQf26TEn7V6X88mktX9kee9o=
@@ -169,5 +171,6 @@ gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v22aHH28wwpauUhK9Oo=
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
-gorm.io/gorm v1.22.5 h1:lYREBgc02Be/5lSCTuysZZDb6ffL2qrat6fg9CFbvXU=
 gorm.io/gorm v1.22.5/go.mod h1:l2lP/RyAtc1ynaTjFksBde/O8v9oOGIApu2/xRitmZk=
+gorm.io/gorm v1.23.1 h1:aj5IlhDzEPsoIyOPtTRVI+SyaN1u6k613sbt4pwbxG0=
+gorm.io/gorm v1.23.1/go.mod h1:l2lP/RyAtc1ynaTjFksBde/O8v9oOGIApu2/xRitmZk=

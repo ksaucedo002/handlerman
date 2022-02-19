@@ -3,6 +3,8 @@ package handlerman
 import (
 	"fmt"
 	"reflect"
+	"regexp"
+	"strings"
 
 	"github.com/ksaucedo002/answer/errores"
 	"github.com/labstack/echo/v4"
@@ -14,7 +16,48 @@ func jsonBind(c echo.Context, payload interface{}) error {
 	}
 	return nil
 }
-func (h *HandlerMan) getIndentifierValues(sf reflect.Value) (interface{}, error) {
+func search(collection []string, s string) bool {
+	for _, item := range collection {
+		if item == s {
+			return true
+		}
+	}
+	return false
+}
+func cameCaseToSnake(s string) string {
+	for _, reStr := range []string{`([A-Z]+)([A-Z][a-z])`, `([a-z\d])([A-Z])`} {
+		re := regexp.MustCompile(reStr)
+		s = re.ReplaceAllString(s, "${1}_${2}")
+	}
+	return strings.ToLower(s)
+}
+func getMapJsonFieldNameWithModelFieldName(i interface{}, ignore ...string) map[string]string {
+	var responseMap map[string]string = make(map[string]string)
+	rType := reflect.TypeOf(i)
+	if rType == nil {
+		return responseMap
+	}
+	if rType.Kind() == reflect.Ptr {
+		if rType.Elem().Kind() == reflect.Struct {
+			rType = rType.Elem()
+		} else {
+			return responseMap
+		}
+	}
+	for i := 0; i < rType.NumField(); i++ {
+		rsf := rType.Field(i)
+		jsonvalue := rsf.Tag.Get("json")
+		if jsonvalue == "" {
+			continue
+		}
+		jsonvalue = strings.Split(jsonvalue, ",")[0]
+		if !search(ignore, jsonvalue) {
+			responseMap[jsonvalue] = cameCaseToSnake(rsf.Name)
+		}
+	}
+	return responseMap
+}
+func getIndentifierValues(sf reflect.Value) (interface{}, error) {
 	switch sf.Type().Kind() {
 	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int8:
 		n, ok := (sf.Interface()).(int)

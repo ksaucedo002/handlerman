@@ -22,7 +22,8 @@ func (s *storage) findAllEnties() (interface{}, error) {
 }
 func (s *storage) findByIdentifier(fileName string, value interface{}) (interface{}, error) {
 	newObjet := reflect.New(s.rType).Interface()
-	rs := s.conn.Where(fmt.Sprintf("%s = ?", fileName), value).Limit(1).Find(&newObjet)
+	tx := s.conn.Limit(1)
+	rs := tx.Where(fmt.Sprintf("%s = ?", fileName), value).Find(&newObjet)
 	if rs.Error != nil {
 		return nil, errores.NewInternalDBf(rs.Error)
 	}
