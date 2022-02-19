@@ -1,4 +1,4 @@
-module github.com/ksaucedo002/handlermain
+module github.com/ksaucedo002/handlerman
 
 go 1.17
 
