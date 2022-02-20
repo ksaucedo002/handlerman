@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/ksaucedo002/answer"
 	"github.com/ksaucedo002/answer/errores"
@@ -21,10 +22,12 @@ const (
 	ACTION_PATCH    = "PATCH"
 )
 
+type isIstring bool
 type HandlerMan struct {
-	fieldKey       fieldName
-	allowActions   map[string]struct{}
-	translateFiles map[string]string
+	fieldKey        fieldName
+	allowActions    map[string]struct{}
+	translateFields map[string]string
+	filtrableFields map[string]isIstring
 	//ignoreFiels  map[string]struct{}
 	group   *echo.Group
 	storage *storage
@@ -37,7 +40,7 @@ func NewHandlerMan(g *echo.Group, conn *gorm.DB) *HandlerMan {
 			ModelFieldName: "ID",
 			IsNumber:       true,
 		},
-
+		filtrableFields: make(map[string]isIstring),
 		allowActions: map[string]struct{}{
 			ACTION_CREATE: {}, ACTION_DELETE: {}, ACTION_UPDATE: {},
 			ACTION_FIND_ALL: {}, ACTION_FIND_BY: {}, ACTION_PATCH: {}},
@@ -59,7 +62,7 @@ func (h *HandlerMan) Start(i interface{}, options ...options) error {
 		return fmt.Errorf("error, se esperabas una estructura")
 	}
 	h.storage.rType = rType
-	h.translateFiles = getMapJsonFieldNameWithModelFieldName(i)
+	h.translateFields = getMapJsonFieldNameWithModelFieldName(i)
 	for _, op := range options {
 		op.apply(h)
 	}
@@ -85,6 +88,39 @@ func (h *HandlerMan) router() {
 }
 
 func (h *HandlerMan) findAll(c echo.Context) error {
+	filterValue := c.QueryParam("filter")
+	if filterValue != "" {
+		splits := strings.Split(filterValue, ",")
+		if len(splits) == 2 {
+			nameField, ok := h.translateFields[splits[0]]
+			var value interface{}
+			if !ok {
+				return answer.ErrorResponse(c, errores.NewBadRequestf(nil, "%s invalido", splits[0]))
+			}
+			fl, ok := h.filtrableFields[nameField]
+			if !ok {
+				return answer.ErrorResponse(c, errores.NewBadRequestf(
+					fmt.Errorf("findAll: filed %s invalido", nameField),
+					"%s invalido", splits[0]),
+				)
+			}
+			if fl {
+				value = splits[1]
+			} else {
+				num, err := strconv.Atoi(splits[1])
+				if err != nil {
+					return answer.ErrorResponse(c, errores.NewBadRequestf(nil, "%s invalido, debe ser numerico", splits[0]))
+				}
+				value = num
+			}
+			data, err := h.storage.findAllEntiesWithFilter(filter{fieldName: nameField, value: value})
+			if err != nil {
+				return answer.ErrorResponse(c, err)
+			}
+			return answer.OK(c, data)
+		}
+
+	}
 	data, err := h.storage.findAllEnties()
 	if err != nil {
 		return answer.ErrorResponse(c, err)

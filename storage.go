@@ -8,11 +8,22 @@ import (
 	"gorm.io/gorm"
 )
 
+type filter struct {
+	fieldName string
+	value     interface{}
+}
 type storage struct {
 	rType reflect.Type
 	conn  *gorm.DB
 }
 
+func (s *storage) findAllEntiesWithFilter(flt filter) (interface{}, error) {
+	container := reflect.MakeSlice(reflect.SliceOf(s.rType), 0, 0).Interface()
+	if err := s.conn.Find(&container, fmt.Sprintf("%s = ?", flt.fieldName), flt.value).Error; err != nil {
+		return nil, errores.NewInternalDBf(err)
+	}
+	return container, nil
+}
 func (s *storage) findAllEnties() (interface{}, error) {
 	container := reflect.MakeSlice(reflect.SliceOf(s.rType), 0, 0).Interface()
 	if err := s.conn.Find(&container).Error; err != nil {

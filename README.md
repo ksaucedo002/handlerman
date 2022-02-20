@@ -30,7 +30,7 @@ package main
 import (
 	"log"
 
-	handlerman "github.com/ksaucedo002/handlermain"
+	"github.com/ksaucedo002/handlerman"
 	"github.com/labstack/echo/v4"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -59,11 +59,19 @@ func main() {
 	}
 	log.Println("Database opened!!")
 	e := echo.New()
+
+
+
 	h := handlerman.NewHandlerMan(e.Group("/persona"), conn)
 	h.Start(Personas{})
+
+
+
 	handlerProduct := handlerman.NewHandlerMan(e.Group("/producto"), conn)
     ///Nombre del campo primary key, en la tabla y en el modelo
 	handlerProduct.Start(Product{}, handlerman.WithKeyFieldName("codigo", "Codigo", false))
+
+	
 	e.Start("localhost:91")
 }
 ```
