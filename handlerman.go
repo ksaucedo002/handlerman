@@ -164,8 +164,8 @@ func (h *HandlerMan) update(c echo.Context) error {
 		return answer.JSONErrorResponse(c)
 	}
 	field := reflect.ValueOf(newObjet).Elem().FieldByName(h.fieldKey.ModelFieldName)
-	if field.IsValid() {
-		err := fmt.Errorf("%s no se encontro en la estrucutra %v", h.fieldKey.ModelFieldName, h.storage.rType)
+	if !field.IsValid() {
+		err := fmt.Errorf("invalid %s no se encontro en la estrucutra %v", h.fieldKey.ModelFieldName, h.storage.rType)
 		return answer.ErrorResponse(c, errores.NewInternalf(err, errores.ErrDatabaseInternal))
 	}
 	if field.IsZero() {
