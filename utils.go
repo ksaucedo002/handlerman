@@ -6,13 +6,13 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/ksaucedo002/answer/errores"
 	"github.com/labstack/echo/v4"
+	"github.com/user0608/goones/errs"
 )
 
 func jsonBind(c echo.Context, payload interface{}) error {
 	if err := (&echo.DefaultBinder{}).BindBody(c, payload); err != nil {
-		return errores.NewBadRequestf(nil, errores.ErrInvalidJSON)
+		return errs.BadReqf(nil, "body documento invalido")
 	}
 	return nil
 }
@@ -63,34 +63,34 @@ func getIndentifierValues(sf reflect.Value) (interface{}, error) {
 		n, ok := (sf.Interface()).(int)
 		if !ok {
 			err := fmt.Errorf("%s, error assertion int", sf.Type().Name())
-			return nil, errores.NewInternalf(err, errores.ErrDatabaseInternal)
+			return nil, errs.Internalf(err, errs.ErrDatabase)
 		}
 		if n == 0 {
-			return nil, errores.NewNotFoundf(nil, "error identificador nulo")
+			return nil, errs.Bad("error identificador nulo")
 		}
 		return n, nil
 	case reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uint8:
 		n, ok := (sf.Interface()).(uint)
 		if !ok {
 			err := fmt.Errorf("%s, error assertion uint", sf.Type().Name())
-			return nil, errores.NewInternalf(err, errores.ErrDatabaseInternal)
+			return nil, errs.Internalf(err, errs.ErrDatabase)
 		}
 		if n == 0 {
-			return nil, errores.NewNotFoundf(nil, "error identificador nulo")
+			return nil, errs.Bad("error identificador nulo")
 		}
 		return n, nil
 	case reflect.String:
 		n, ok := (sf.Interface()).(string)
 		if !ok {
 			err := fmt.Errorf("%s, error assertion string", sf.Type().Name())
-			return nil, errores.NewInternalf(err, errores.ErrDatabaseInternal)
+			return nil, errs.Internalf(err, errs.ErrDatabase)
 		}
 		if n == "" {
-			return nil, errores.NewNotFoundf(nil, "error identificador nulo")
+			return nil, errs.Bad("error identificador nulo")
 		}
 		return n, nil
 	default:
 		err := fmt.Errorf("%s, tipo de dato incorrecot", sf.Type().Name())
-		return nil, errores.NewInternalf(err, errores.ErrDatabaseInternal)
+		return nil, errs.Internalf(err, errs.ErrDatabase)
 	}
 }
