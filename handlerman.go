@@ -2,9 +2,11 @@ package handlerman
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/ksaucedo002/kcheck"
 	"github.com/labstack/echo/v4"
@@ -42,7 +44,16 @@ type HandlerMan struct {
 	storage *storage
 }
 
-func NewGroup(g *echo.Group, conn *gorm.DB) *HandlerMan {
+var once sync.Once
+var connection *gorm.DB
+
+func SetConn(db *gorm.DB) {
+	once.Do(func() { connection = db })
+}
+func NewGroup(g *echo.Group) *HandlerMan {
+	if connection == nil {
+		log.Panic("gorm db connection not found, set connection before create new groups")
+	}
 	return &HandlerMan{
 		fieldKey: fieldName{
 			TableFieldName: "id",
@@ -56,7 +67,7 @@ func NewGroup(g *echo.Group, conn *gorm.DB) *HandlerMan {
 		//ignoreFiels: make(map[string]struct{}),
 		group: g,
 		storage: &storage{
-			conn: conn,
+			conn: connection,
 		},
 	}
 }
